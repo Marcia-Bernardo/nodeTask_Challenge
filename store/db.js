@@ -22,7 +22,6 @@ export class StoreTask {
 
   select(table, search) {
     let data = this.#database[table] ?? [];
-    console.log(search);
     if (search) {
       data = data.filter((row) => {
         return Object.entries(search).some(([key, value]) => {
@@ -51,9 +50,14 @@ export class StoreTask {
     }
     const saveLastData = this.#database[table][rowIndex];
     let completed_at = data.completed_at;
-    if (completed_at === "" || completed_at === undefined) {
-      completed_at = saveLastData.completed_at;
+    if (completed_at === true) {
+      if (saveLastData.completed_at === null) {
+        completed_at = new Date(Date.now()).toUTCString();
+      } else {
+        completed_at = null;
+      }
     }
+
     let description = data.description;
     if (description === "" || description === undefined) {
       description = saveLastData.description;
@@ -64,7 +68,7 @@ export class StoreTask {
       title = saveLastData.title;
     }
 
-    const updatedData = {
+    const updatedTask = {
       id,
       title,
       description,
@@ -72,7 +76,7 @@ export class StoreTask {
       created_at: saveLastData.created_at,
       update_at: data.update_at,
     };
-    this.#database[table][rowIndex] = updatedData;
+    this.#database[table][rowIndex] = updatedTask;
     this.#persist();
   }
 

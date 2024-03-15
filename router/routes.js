@@ -44,7 +44,7 @@ export const routes = [
         description,
         completed_at: null,
         created_at: new Date(Date.now()).toUTCString(),
-        update_at: null,
+        update_at: new Date(Date.now()).toUTCString(),
       };
 
       database.insert("tasks", task);
@@ -57,11 +57,26 @@ export const routes = [
     url: buildRoutePath("/tasks/:id"),
     handler: (req, res) => {
       const { id } = req.params;
-      const { title, description, completed_at } = req.body;
+      const { title, description } = req.body;
       const resultUpdate = database.update("tasks", id, {
         title,
         description,
-        completed_at,
+        update_at: new Date(Date.now()).toUTCString(),
+      });
+      if (resultUpdate === undefined) {
+        return res.writeHead(204).end();
+      }
+      return res.writeHead(400).end(resultUpdate);
+    },
+  },
+  {
+    method: "PATCH",
+    url: buildRoutePath("/tasks/:id/complete"),
+    handler: (req, res) => {
+      const { id } = req.params;
+
+      const resultUpdate = database.update("tasks", id, {
+        completed_at: true,
         update_at: new Date(Date.now()).toUTCString(),
       });
       if (resultUpdate === undefined) {
